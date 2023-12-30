@@ -1,0 +1,4 @@
+fastapi
+uvicorn
+icecream
+confluent-kafka
