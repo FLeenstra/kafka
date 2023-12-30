@@ -1,13 +1,19 @@
 
 from confluent_kafka import Consumer, KafkaException
 import time
-import sys
 import logging
+import configparser
 
-kafkaTopic = ['testTopic']
-kafkaAddress = 'redpanda-0:9092'
-kafkaConsumerGroup = 'mygroup'
+#set the logging level #todo move to config
 logging.basicConfig(level=logging.DEBUG)
+
+config = configparser.ConfigParser()
+config.read('app/consumer.ini')
+
+kafkaAddress = config['kafka']['address']
+kafkaTopic = ['testTopic']
+kafkaConsumerGroup = 'mygroup'
+
 
 conf = {'bootstrap.servers': kafkaAddress,
         'group.id': kafkaConsumerGroup,
