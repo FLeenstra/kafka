@@ -23,12 +23,7 @@ def basic_consume_loop(consumer, topics, running):
             if msg is None: continue
 
             if msg.error():
-                if msg.error().code() == KafkaError._PARTITION_EOF:
-                    # End of partition event
-                    sys.stderr.write('%% %s [%d] reached end at offset %d\n' %
-                                     (msg.topic(), msg.partition(), msg.offset()))
-                elif msg.error():
-                    raise KafkaException(msg.error())
+                raise KafkaException(msg.error())
             else:
                 key = msg.key().decode('utf-8')
                 value = msg.value().decode('utf-8')
