@@ -1,49 +1,16 @@
 
-from confluent_kafka import Consumer, KafkaException
+from icecream import ic
 import time
-import sys
 import logging
+from custom.kafkaconnector.Kafkaconnector import Kafkaconnector
 
-kafkaTopic = ['testTopic']
-kafkaAddress = 'redpanda-0:9092'
-kafkaConsumerGroup = 'mygroup'
-logging.basicConfig(level=logging.DEBUG)
-
-conf = {'bootstrap.servers': kafkaAddress,
-        'group.id': kafkaConsumerGroup,
-        'auto.offset.reset': 'smallest'}
-
-def basic_consume_loop(consumer, topics, running):
-    try:
-        consumer.subscribe(topics)
-        logging.debug('subscribed to topic')
-
-        while running:
-            msg = consumer.poll(timeout=1.0)
-            if msg is None: continue
-
-            if msg.error():
-                if msg.error().code() == KafkaError._PARTITION_EOF:
-                    # End of partition event
-                    sys.stderr.write('%% %s [%d] reached end at offset %d\n' %
-                                     (msg.topic(), msg.partition(), msg.offset()))
-                elif msg.error():
-                    raise KafkaException(msg.error())
-            else:
-                key = msg.key().decode('utf-8')
-                value = msg.value().decode('utf-8')
-                logging.debug(key)
-                logging.debug(value)
-    finally:
-        # Close down consumer to commit final offsets.
-        consumer.close()
-        logging.debug('closed kafka connection')
+loop = Kafkaconnector()
 
 eternity = True
-running = False
+time.sleep(20)
 while eternity:
     logging.info('doing a run')
-    consumer = Consumer(conf)
-    basic_consume_loop(consumer, kafkaTopic, running)
-    running = True
+    loop.connect()
+    logging.info('taking a 10 sec break')
     time.sleep(10)
+    
