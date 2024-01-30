@@ -1,21 +1,38 @@
-
 from confluent_kafka import Consumer, KafkaException
+from icecream import ic
 import time
-import sys
 import logging
+import configparser
 
-kafkaTopic = ['testTopic']
-kafkaAddress = 'redpanda-0:9092'
-kafkaConsumerGroup = 'mygroup'
+def unravelList(kafaTopic):
+    returnList = []
+    for kv in kafaTopic.split(","):
+        returnList.append(str(kv))
+    logging.debug(ic(returnList))
+    return returnList
+
+#set the logging level #todo move to config
 logging.basicConfig(level=logging.DEBUG)
+
+config = configparser.ConfigParser()
+config.read('app/consumer.ini', encoding='utf-8')
+
+
+kafkaAddress = config['kafka']['address']
+kafkaTopic = config['kafka']['topic']
+kafkaTopic = unravelList(kafkaTopic)
+kafkaConsumerGroup = config['kafka']['consumergroup']
+
 
 conf = {'bootstrap.servers': kafkaAddress,
         'group.id': kafkaConsumerGroup,
         'auto.offset.reset': 'smallest'}
 
-def basic_consume_loop(consumer, topics, running):
+def basic_consume_loop(consumer, topic, running):
     try:
-        consumer.subscribe(topics)
+        #consumer.subscribe(['testTopic'])
+        logging.debug(topic)
+        consumer.subscribe(topic)
         logging.debug('subscribed to topic')
 
         while running:
